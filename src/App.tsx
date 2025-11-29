@@ -1,7 +1,8 @@
-import { BrowserRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './contexts/AuthContext';
-import AppRoutes from './AppRoutes'; // We'll create this next
+import { BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "./contexts/AuthContext";
+import SidebarLayout from "./components/SidebarLayout";
+import AppRoutes from "./AppRoutes";
 
 const queryClient = new QueryClient();
 
@@ -10,7 +11,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
-          <AppRoutes />
+          <SidebarLayout>
+            <AppRoutes />
+          </SidebarLayout>
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>

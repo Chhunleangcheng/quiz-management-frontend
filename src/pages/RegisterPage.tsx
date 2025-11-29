@@ -1,25 +1,33 @@
 import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { login, getErrorMessage } from "../services/api";
+import { register, login, getErrorMessage } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import type { UserLogin } from "../types/api";
+import type { UserRegister } from "../types/api";
 
-const LoginPage: React.FC = () => {
+const RegisterPage: React.FC = () => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const { setToken, setUser } = useAuth();
   const navigate = useNavigate();
 
-  const mutation = useMutation({
-    mutationFn: (data: UserLogin) => login(data),
-    onSuccess: (response) => {
-      setToken(response.data.token);
-      setUser(response.data.user);
-      setErrorMessage("");
-      // Navigate to student page by default
-      navigate("/student");
+  const registerMutation = useMutation({
+    mutationFn: (data: UserRegister) => register(data),
+    onSuccess: async (response) => {
+      // After successful registration, log in the user
+      try {
+        const loginResponse = await login({ email, password });
+        setToken(loginResponse.data.token);
+        setUser(loginResponse.data.user);
+        setErrorMessage("");
+        navigate("/student");
+      } catch (error) {
+        setErrorMessage(
+          "Registration successful but login failed. Please try logging in."
+        );
+      }
     },
     onError: (error) => {
       setErrorMessage(getErrorMessage(error));
@@ -29,15 +37,15 @@ const LoginPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
-    mutation.mutate({ email, password });
+    registerMutation.mutate({ username, email, password });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">
-            <div className="inline-block bg-blue-600 rounded-full p-3 mb-4">
+            <div className="inline-block bg-indigo-600 rounded-full p-3 mb-4">
               <svg
                 className="w-12 h-12 text-white"
                 fill="none"
@@ -48,17 +56,37 @@ const LoginPage: React.FC = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
                 />
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome Back
+              Create Account
             </h2>
-            <p className="text-gray-600">Sign in to your account to continue</p>
+            <p className="text-gray-600">
+              Join us and start managing classes today
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Username
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Choose a username"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 outline-none"
+              />
+            </div>
+
             <div>
               <label
                 htmlFor="email"
@@ -73,7 +101,7 @@ const LoginPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 outline-none"
               />
             </div>
 
@@ -89,9 +117,9 @@ const LoginPage: React.FC = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder="Create a password"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 outline-none"
               />
             </div>
 
@@ -103,10 +131,10 @@ const LoginPage: React.FC = () => {
 
             <button
               type="submit"
-              disabled={mutation.isPending}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              disabled={registerMutation.isPending}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
-              {mutation.isPending ? (
+              {registerMutation.isPending ? (
                 <span className="flex items-center justify-center">
                   <svg
                     className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
@@ -128,22 +156,22 @@ const LoginPage: React.FC = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Logging in...
+                  Registering...
                 </span>
               ) : (
-                "Login"
+                "Register"
               )}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Don't have an account?{" "}
+              Already have an account?{" "}
               <Link
-                to="/register"
-                className="text-blue-600 hover:text-blue-700 font-semibold"
+                to="/login"
+                className="text-indigo-600 hover:text-indigo-700 font-semibold"
               >
-                Register here
+                Login here
               </Link>
             </p>
           </div>
@@ -153,4 +181,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
