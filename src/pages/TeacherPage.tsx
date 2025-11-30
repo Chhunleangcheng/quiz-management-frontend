@@ -331,7 +331,7 @@ const TeacherPage: React.FC = () => {
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h3 className="text-lg font-bold text-gray-900">
-                Create New Quiz
+                Create New Class
               </h3>
               <button
                 onClick={() => setShowCreateModal(false)}
@@ -355,13 +355,13 @@ const TeacherPage: React.FC = () => {
             <form onSubmit={handleCreateGroup} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Quiz Title
+                  Class name
                 </label>
                 <input
                   type="text"
                   value={groupTitle}
                   onChange={(e) => setGroupTitle(e.target.value)}
-                  placeholder="Enter quiz title"
+                  placeholder="Enter Class name"
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
@@ -393,7 +393,7 @@ const TeacherPage: React.FC = () => {
                 >
                   {createGroupMutation.isPending
                     ? "Creating..."
-                    : "Create Quiz"}
+                    : "Create"}
                 </button>
               </div>
             </form>
